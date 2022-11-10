@@ -1,0 +1,62 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 2
+  tags:
+  - onlyTrigger
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - Walls
+  - Water
+  - UI
+  - Mist
+  - Character
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: BoardTile
+    uniqueID: 47109431
+    locked: 0
+  - name: Floor
+    uniqueID: 2493102915
+    locked: 0
+  - name: Default
+    uniqueID: 0
+    locked: 0
+  - name: Portrait
+    uniqueID: 1240076275
+    locked: 0
+  - name: Walls
+    uniqueID: 2204599435
+    locked: 0
+  - name: Mist
+    uniqueID: 958440577
+    locked: 0
+  - name: Darkness
+    uniqueID: 4099534777
+    locked: 0
