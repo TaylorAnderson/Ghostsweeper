@@ -39,11 +39,12 @@ public class BoardVisualTile : MonoBehaviour
     }
     public void SetValue(int value) {
         this.value = value;
+        if (value == 0) return;
         numberSprite.sprite = numberSprites[value-1];
     }
 
     public void SetValueShown(bool shown) {
-        numberSprite.gameObject.SetActive(shown);
+        numberSprite.gameObject.SetActive(currentlyRevealed && shown);
     }
 
     public void SetMine(bool hasMine) {

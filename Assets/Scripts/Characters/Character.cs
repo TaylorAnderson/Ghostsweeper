@@ -17,28 +17,25 @@ public class Character : MonoBehaviour
         Vector2.down
     };
     private float destAngle = 0;
-    public GameObject flashlight;
     public LayerMask wallMask;
     public LayerMask mistMask;
     public float maxSightRange = 5;
     public float midSightRange = 3;
     public float minSightRange = 2;
-    public bool isMoving = false;
 
     public UnityEvent<Character, Vector3> OnMove;
     // Start is called before the first frame update
-    void Start()
+    public virtual void Start()
     {
         dest = transform.position;
         destAngle = transform.eulerAngles.z;
-        OnMove.Invoke(this, transform.position);
+        DoMoveLogic(transform.position);
     }
 
     // Update is called once per frame
     void Update()
     {
         transform.position = Vector2.Lerp(transform.position, dest, 0.1f);
-        isMoving = Vector2.Distance(transform.position, dest) > 0.01f;
     }
     public void OnMovePressed(InputAction.CallbackContext ctx) {
         if (ctx.started) {
@@ -59,11 +56,15 @@ public class Character : MonoBehaviour
                 mistHit.collider.GetComponentInParent<BoardVisualTile>().OnClear(cardinalDir);
             }
             if (dist.magnitude > 0) {
-                OnMove.Invoke(this, dest + dist);
+                DoMoveLogic(dest + dist);
             }
             dest += dist;
         }
     }   
+    protected virtual void DoMoveLogic(Vector2 moveDest) {
+        print("invoking");
+        OnMove.Invoke(this, moveDest);
+    }
     public void OnLook(InputAction.CallbackContext ctx) {
         if (ctx.started) {
             var cardinalDir = GetCardinalDir(ctx.ReadValue<Vector2>());

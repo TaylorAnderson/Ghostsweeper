@@ -12,7 +12,7 @@ public class LightingManager : MonoBehaviour
     public LayerMask layerMask;
     public LayerMask mistLayerMask;
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         for (int i = 0; i < characters.Count; i++) {
             characters[i].OnMove.AddListener(OnCharacterMove);
@@ -37,6 +37,7 @@ public class LightingManager : MonoBehaviour
     }
 
     public void OnCharacterMove(Character character, Vector3 position) {
+        print("updating lighting");
         UpdateLighting(character, position);
     }
     void UpdateLighting(Character character, Vector3 position) {

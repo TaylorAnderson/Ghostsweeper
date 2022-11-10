@@ -12,8 +12,10 @@ public class BoardManager : MonoBehaviour
     public Grid grid;
     private bool dirty = false;
     public static BoardManager instance;
+
+    public List<Character> characters;
     // Start is called before the first frame update
-    void Start() {
+    void Awake() {
         BoardManager.instance = this;
         boardTilemap = GetComponent<Tilemap>();
         boardData.InitGrid(boardTilemap.size.x, boardTilemap.size.y);
@@ -29,7 +31,8 @@ public class BoardManager : MonoBehaviour
         }
 
         boardData.FillGridByMinesRandom(50, wallPositions);
-        boardData.RevealTile(Mathf.RoundToInt(boardData.width/2) - 1, 2);
+        var charBoardTile = GetBoardTileOnCharacter(characters[0]);
+        boardData.RevealTile(charBoardTile.x, charBoardTile.y);
 
         for (int x = boardTilemap.cellBounds.min.x; x < boardTilemap.cellBounds.max.x; x++) {
             for (int y = boardTilemap.cellBounds.min.y; y < boardTilemap.cellBounds.max.y; y++) {
@@ -45,6 +48,8 @@ public class BoardManager : MonoBehaviour
             tile.OnCleared.AddListener(OnTileClear);
         }
         dirty = true;
+
+        UpdateVisuals();
     }
 
     void UpdateVisuals() {
@@ -80,14 +85,25 @@ public class BoardManager : MonoBehaviour
         dirty = true;
     }
 
-    List<BoardVisualTile> GetTilesAround(Vector3 worldPosition, int dist) {
-        List<BoardVisualTile> tiles;
-        var cellGridPos = boardTilemap.WorldToCell(worldPosition);
+    public Vector2Int GetBoardTileOnCharacter(Character character) {
+        var boardTilemapCell = boardTilemap.WorldToCell(character.transform.position);
+        return new Vector2Int(boardTilemapCell.x - boardTilemap.cellBounds.min.x, boardTilemapCell.y - boardTilemap.cellBounds.min.y);
+    }
+    public void ShowNumberOnTiles(Vector3 worldPosition, int dist) {
         for (int x = boardTilemap.cellBounds.min.x; x < boardTilemap.cellBounds.max.x; x++) {
             for (int y = boardTilemap.cellBounds.min.y; y < boardTilemap.cellBounds.max.y; y++) {
+                var boardTile = boardTilemap.GetInstantiatedObject(new Vector3Int(x, y, 0));
+                if (boardTile) {
+                    var boardvisualTile = boardTile.GetComponent<BoardVisualTile>();
+                    if (Vector2.Distance(worldPosition, boardTile.transform.position) < dist) {
+                        boardvisualTile.SetValueShown(true);
+                    }
+                    else {
+                        boardvisualTile.SetValueShown(false);
+                    }
+                }
+
             }
         }
-        return tiles;
-
     }
 }
