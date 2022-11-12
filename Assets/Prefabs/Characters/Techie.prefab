@@ -59,6 +59,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   emfDist: 3
+  flagPrefab: {fileID: 1158305772858544630, guid: 7f2cf5c25b78a0a4ba63a2ce0ee59cb1, type: 3}
 --- !u!114 &684508355
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -10,12 +10,14 @@ public class BoardVisualTile : MonoBehaviour
     public GameObject mist;
     public GameObject mistBurst;
     public GameObject mine;
+    public GameObject mistCrack;
     public SpriteRenderer numberSprite;
     public int value = 0;
     [HideInInspector] public int gridX = 0;
     [HideInInspector] public int gridY = 0;
     public bool currentlyRevealed = false;
     public UnityEvent<BoardVisualTile> OnCleared;
+    public bool mistDamaged = false;
     // Start is called before the first frame update
     void Start()
     {
@@ -24,6 +26,7 @@ public class BoardVisualTile : MonoBehaviour
 
     // Update is called once per frame
     void Update() {
+      mistCrack.SetActive(mistDamaged);
     }
 
     public void SetRevealed(bool revealed) {
@@ -51,7 +54,7 @@ public class BoardVisualTile : MonoBehaviour
         this.mine.SetActive(hasMine && currentlyRevealed);
     }
 
-    public void OnClear(Vector2 dir) {
+    public void OnClear() {
         OnCleared.Invoke(this);
 
     }

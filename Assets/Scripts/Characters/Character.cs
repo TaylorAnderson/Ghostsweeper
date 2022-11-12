@@ -9,8 +9,8 @@ using UnityEngine.Tilemaps;
 using UnityEngine.Events;
 public class Character : MonoBehaviour
 {
-    private Vector2 dest;
-    private List<Vector2> dirs = new List<Vector2>() {
+    protected Vector2 dest;
+    protected List<Vector2> dirs = new List<Vector2>() {
         Vector2.left, 
         Vector2.right,
         Vector2.up,
@@ -35,10 +35,11 @@ public class Character : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.position = Vector2.Lerp(transform.position, dest, 0.1f);
+        transform.position = Vector2.Lerp(transform.position, dest, 0.3f);
     }
     public void OnMovePressed(InputAction.CallbackContext ctx) {
         if (ctx.started) {
+          transform.position = dest;
             var move = ctx.ReadValue<Vector2>();
             var cardinalDir = GetCardinalDir(move);
             Vector2 dist = Vector2.zero;
@@ -49,21 +50,29 @@ public class Character : MonoBehaviour
             else {
                 dist = cardinalDir;
             }
-
-            Debug.DrawLine(dest, dest + dist, Color.red, 0.5f);
-            var mistHit = Physics2D.Raycast(dest + dist, dist, dist.magnitude * 0.1f, mistMask);
-            if (mistHit) {
-                mistHit.collider.GetComponentInParent<BoardVisualTile>().OnClear(cardinalDir);
-            }
             if (dist.magnitude > 0) {
-                DoMoveLogic(dest + dist);
+              DoMoveLogic(dist + dest);
             }
-            dest += dist;
+            
         }
     }   
     protected virtual void DoMoveLogic(Vector2 moveDest) {
-        print("invoking");
+        var mistHit = Physics2D.Raycast(moveDest, Vector2.one, 0.1f, mistMask);
+        if (mistHit) {
+            var boardTile = mistHit.collider.GetComponentInParent<BoardVisualTile>();
+            if (boardTile.mistDamaged) {
+              boardTile.OnClear();
+            }
+            else {
+              boardTile.mistDamaged = true;
+              moveDest = transform.position;
+            }
+        }
+        dest = moveDest;
         OnMove.Invoke(this, moveDest);
+    }
+    protected virtual void DoAbility() {
+
     }
     public void OnLook(InputAction.CallbackContext ctx) {
         if (ctx.started) {
@@ -72,7 +81,9 @@ public class Character : MonoBehaviour
         }
     }
     public void OnUseAbility(InputAction.CallbackContext ctx) {
-
+      if (ctx.performed) {
+        DoAbility();
+      }
     }
 
     TileBase CheckTile(Tilemap tilemap, Vector2 position) {

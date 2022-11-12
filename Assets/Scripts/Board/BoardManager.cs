@@ -9,6 +9,7 @@ public class BoardManager : MonoBehaviour
     public Tilemap boardTilemap;
     private Board boardData = new Board();
     public Tilemap wallTilemap;
+    public Tilemap entranceTilemap;
     public Grid grid;
     private bool dirty = false;
     public static BoardManager instance;
@@ -20,17 +21,26 @@ public class BoardManager : MonoBehaviour
         boardTilemap = GetComponent<Tilemap>();
         boardData.InitGrid(boardTilemap.size.x, boardTilemap.size.y);
 
-        List<Vector2Int> wallPositions = new List<Vector2Int>();
+        List<Vector2Int> restrictedPositions = new List<Vector2Int>();
         for (int x = boardTilemap.cellBounds.min.x; x < boardTilemap.cellBounds.max.x; x++) {
             for (int y = boardTilemap.cellBounds.min.y; y < boardTilemap.cellBounds.max.y; y++) {
                 var tilePos = new Vector3Int(x, y, 0);
                 if (wallTilemap.GetTile(tilePos)) {
-                    wallPositions.Add(new Vector2Int(x - boardTilemap.cellBounds.min.x, y - boardTilemap.cellBounds.min.y));
+                    restrictedPositions.Add(new Vector2Int(x - boardTilemap.cellBounds.min.x, y - boardTilemap.cellBounds.min.y));
                 } 
             }
         }
 
-        boardData.FillGridByMinesRandom(50, wallPositions);
+        for (int x = entranceTilemap.cellBounds.min.x; x < entranceTilemap.cellBounds.max.x; x++) {
+          for (int y = entranceTilemap.cellBounds.min.y; y < entranceTilemap.cellBounds.max.y; y++) {
+            var tilePos = new Vector3Int(x, y, 0);
+            if (entranceTilemap.GetTile(tilePos)) {
+                restrictedPositions.Add(new Vector2Int(x - boardTilemap.cellBounds.min.x, y - boardTilemap.cellBounds.min.y));
+            } 
+          }
+        }
+
+        boardData.FillGridByMinesRandom(40, restrictedPositions);
         var charBoardTile = GetBoardTileOnCharacter(characters[0]);
         boardData.RevealTile(charBoardTile.x, charBoardTile.y);
 
@@ -47,14 +57,30 @@ public class BoardManager : MonoBehaviour
             var tile = boardTilemap.transform.GetChild(i).GetComponent<BoardVisualTile>();
             tile.OnCleared.AddListener(OnTileClear);
         }
+
+        for (int i = 0; i < characters.Count; i++) {
+          characters[i].OnMove.AddListener(OnCharacterMove);
+        }
         dirty = true;
 
         UpdateVisuals();
     }
 
+    void OnCharacterMove(Character character, Vector3 dest) {
+      for (int x = boardTilemap.cellBounds.min.x; x < boardTilemap.cellBounds.max.x; x++) {
+        for (int y = boardTilemap.cellBounds.min.y; y < boardTilemap.cellBounds.max.y; y++) {
+          var tilePos = new Vector3Int(x, y, 0);
+          var boardTile = boardTilemap.GetInstantiatedObject(tilePos);
+          if (boardTile && dest != character.transform.position) {
+            boardTile.GetComponent<BoardVisualTile>().mistDamaged = false;
+          }
+        }
+      }
+    }
+
     void UpdateVisuals() {
-        for (int x = boardTilemap.cellBounds.min.x; x < wallTilemap.cellBounds.max.x; x++) {
-            for (int y = boardTilemap.cellBounds.min.y; y < wallTilemap.cellBounds.max.y; y++) {
+        for (int x = boardTilemap.cellBounds.min.x; x < boardTilemap.cellBounds.max.x; x++) {
+            for (int y = boardTilemap.cellBounds.min.y; y < boardTilemap.cellBounds.max.y; y++) {
                 var tilePos = new Vector3Int(x, y, 0);
                 var boardTilePos = new Vector3Int(tilePos.x - boardTilemap.cellBounds.min.x, tilePos.y - boardTilemap.cellBounds.min.y);
                 var tileObject = boardTilemap.GetInstantiatedObject(tilePos);
